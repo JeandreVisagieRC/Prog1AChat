@@ -1,64 +1,79 @@
-
 package jeandrevisagie.chat;
+
 import java.util.Scanner;
 
-/**
- *
- * @author jeand
- */
-public class registration { //taking in relevant user data
-    
-    public static void main (String[]args){
-        Scanner sc = new Scanner(System.in);
+public class registration {
+
+    public static void main(String[] args) {
+        Scanner input = new Scanner(System.in);
+
         
-        System.out.println ("Enter Username:");
-        String user = sc.nextLine ();
+        System.out.print("Enter Username: "); //captures username
+        String username = input.nextLine();
         
-        System.out.println ("Enter Password:");
-        String pass = sc.nextLine();
-        
-        System.out.println("Enter SA Phone Number (+27...):");
-        String phone = sc.nextLine ();
-       
-        //checking rules for registration
-        if (isUsernameValid(user) && isPasswordValid (pass)&& isPhoneValid (phone)) {
-            System.out.println ("Registration successful!");
-        } else{
-            System.out.println ("Registration failed. Please check the requirements.");
-        } sc.close();
-    }
-    
-    public static boolean isUsernameValid (String name){//checking username is less than 5 chars and contains underscore
-        if (name.length() > 5) return false;
-        if (!name.contains ("_")) return false;
-        return true;
-    }
-    public static boolean isPasswordValid(String pass){
-        if (pass.length() < 8) return false;
-        
-        boolean hasUpper = false; //variables will become true when conditions are met
-        boolean hasDigit = false;
-        boolean hasSpecial = false;
-        String specialChars = "!@#$%^&*"; //defining 'special characters'
-        
-        for (int i = 0; i < pass.length(); i++){
-            char c = pass.charAt (i);
-            if (Character.isUpperCase(c)) hasUpper = true;
-            if (Character.isDigit(c)) hasDigit = true;
-            if (specialChars.contains (String.valueOf(c))) hasSpecial = true; // reading through each digit in password and checking uppercase, digit, special chars
+        if (checkUserName(username)) {
+            System.out.println("Username successfully captured");
+        } else {
+            System.out.println("Username is not correctly formatted; please ensure that your username contains an underscore and is no more than five characters in length");
         }
-        return hasUpper && hasDigit && hasSpecial;
-    }
-    public static boolean isPhoneValid (String phone) {
-        if (!phone.startsWith("+27")) return false; //checking for SA dialling code
+
         
-        String numbersOnly = phone.substring(3);//removes +27 digits from the check
-        if (numbersOnly.length() > 10 || numbersOnly.isEmpty()) return false;
+        System.out.print("Enter Password: "); //captures password
+        String password = input.nextLine();
         
-        for (int i = 0; i < numbersOnly.length(); i++) { //cycling through numbers - same process as with password
-            if (!Character.isDigit(numbersOnly.charAt(i))) return false;       
+        boolean isValid = true;
+        if (password.length() < 8) {
+            isValid = false; //length check
+        } else {
+            boolean hasUpper = false; 
+            boolean hasDigit = false;
+            boolean hasSpecial = false;
+            String specialChars = "!@#$%^&*"; //declare special chars
+
+            // check each char to fit requirements
+            for (int i = 0; i < password.length(); i++) {
+                char c = password.charAt(i);
+                if (Character.isUpperCase(c)) hasUpper = true;
+                if (Character.isDigit(c)) hasDigit = true;
+                if (specialChars.contains(String.valueOf(c))) hasSpecial = true;
+            }
+
+            // all 3 conditions met?
+            isValid = hasUpper && hasDigit && hasSpecial;
+        }
+
+        // error/success message
+        if (isValid) {
+            System.out.println("Password successfully captured");
+        } else {
+            System.out.println("Password is not correctly formatted; please ensure that the password contains at least 8 characters, a capital letter, a number and a special character");
+}
+      
+        System.out.print("Enter Phone Number: "); //captures phone number
+        String phone = input.nextLine();
+        
+        if (checkPhone(phone)) {
+            System.out.println("Phone number successfully added");
+        } else {
+            System.out.println("Phone number is incorrectly formatted or does not contain international code");
+        }
+
+        input.close();
     }
-      return true;
-     
-    }} 
+
    
+
+    public static boolean checkUserName(String name) {
+        return name.contains("_") && name.length() <= 5;
+    }
+
+    public static boolean checkPasswordComplexity(String pd) {
+       
+        return pd.length() >= 8; 
+    }
+
+   public static boolean checkPhone(String phone) {
+   
+    return phone.startsWith("+27") && phone.length() == 13;
+}
+}

@@ -18,39 +18,20 @@ public class registration {
         }
 
         
-        System.out.print("Enter Password: "); //captures password
+       System.out.print("Enter Password: ");
         String password = input.nextLine();
-        
-        boolean isValid = true;
-        if (password.length() < 8) {
-            isValid = false; //length check
-        } else {
-            boolean hasUpper = false; 
-            boolean hasDigit = false;
-            boolean hasSpecial = false;
-            String specialChars = "!@#$%^&*"; //declare special chars
+            boolean isValid = checkPasswordComplexity(password); //calling password checker
 
-            // check each char to fit requirements
-            for (int i = 0; i < password.length(); i++) {
-                char c = password.charAt(i);
-                if (Character.isUpperCase(c)) hasUpper = true;
-                if (Character.isDigit(c)) hasDigit = true;
-                if (specialChars.contains(String.valueOf(c))) hasSpecial = true;
-            }
 
-            // all 3 conditions met?
-            isValid = hasUpper && hasDigit && hasSpecial;
-        }
-
-        // error/success message
-        if (isValid) {
-            System.out.println("Password successfully captured");
-        } else {
-            System.out.println("Password is not correctly formatted; please ensure that the password contains at least 8 characters, a capital letter, a number and a special character");
+if (isValid) {
+    System.out.println("Password successfully captured");
+} else {
+    System.out.println("Password is not correctly formatted.");
 }
+
       
-        System.out.print("Enter Phone Number: "); //captures phone number
-        String phone = input.nextLine();
+    System.out.print("Enter Phone Number: "); //captures phone number
+    String phone = input.nextLine();
         
         if (checkPhone(phone)) {
             System.out.println("Phone number successfully added");
@@ -68,12 +49,33 @@ public class registration {
     }
 
     public static boolean checkPasswordComplexity(String pd) {
-       
-        return pd.length() >= 8; 
+    // check length of password
+    if (pd == null || pd.length() < 8) {
+        return false; 
     }
+
+    // assume all requirements are wrong
+    boolean hasUpper = false;
+    boolean hasDigit = false;
+    boolean hasSpecial = false;
+    String specialChars = "!@#$%^&*";
+
+    // check each character and flag requirements as they are met
+    for (int i = 0; i < pd.length(); i++) {
+        char c = pd.charAt(i);
+        if (Character.isUpperCase(c)) hasUpper = true;
+        if (Character.isDigit(c)) hasDigit = true;
+        if (specialChars.contains(String.valueOf(c))) {
+            hasSpecial = true;
+        }
+    }
+
+    // all 3 reqs met?
+    return hasUpper && hasDigit && hasSpecial; 
+}
 
    public static boolean checkPhone(String phone) {
    
-    return phone.startsWith("+27") && phone.length() == 13;
+    return phone.startsWith("+27") && phone.length() == 13 || phone.length() == 12;//this should cover the edge case of user keeping the 0 in their number w/the dialing code
 }
 }

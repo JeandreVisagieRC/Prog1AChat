@@ -7,28 +7,28 @@ public class registrationTest {
 
     @Test
     public void testUsernameFormatting() {
-        // Test correct: underscore and <= 5 chars
-        assertEquals(true, registration.checkUserName("Ky_1")); 
         
-        // Test incorrect: no underscore
-        assertEquals(false, registration.checkUserName("Kylie")); 
+        assertEquals(true, registration.checkUserName("kyl_1")); 
+        
+       
+        assertEquals(false, registration.checkUserName("kyle!!!!!!!")); 
     }
 
     @Test
     public void testPasswordComplexity() {
-        // Test correct: (Assuming your logic for 8+ chars, cap, etc.)
-        assertEquals(true, registration.checkPasswordComplexity("Ch@tt3r!"));
         
-        // Test incorrect: too short
+        assertEquals(true, registration.checkPasswordComplexity("Ch&&sec@ke99!"));
+        
+       
         assertEquals(false, registration.checkPasswordComplexity("password"));
     }
 
     @Test
     public void testPhoneFormatting() {
-        // Test correct: starts with +27
-        assertEquals(true, registration.checkPhone("+2712345678"));
+       
+        assertEquals(true, registration.checkPhone("+27838968976"));
         
-        // Test incorrect: wrong prefix
+        
         assertEquals(false, registration.checkPhone("0721234567"));
     }
 }

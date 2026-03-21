@@ -35,55 +35,55 @@ public class registrationTest {
     @Test
     public void testUsernameCorrectlyFormatted() {
         // Must contain "_" and be <= 5 chars
-        assertTrue(registration.checkUserName("K_Vis"));
+        assertTrue(registration.checkUserName("kyl_1"));
     }
 
     @Test
     public void testUsernameIncorrectlyFormatted() {
         // Too long or no underscore
-        assertFalse(registration.checkUserName("J_Visagie"));
-        assertFalse(registration.checkUserName("JVis"));
+        assertFalse(registration.checkUserName("kyle!!!!!!!"));
+        assertFalse(registration.checkUserName("kyle!!!!!!!"));
     }
 
     @Test
     public void testPasswordMeetsComplexity() {
         // 8+ chars, Upper, Digit, Special
-        assertTrue(registration.checkPasswordComplexity("P@ssword1"));
+        assertTrue(registration.checkPasswordComplexity("Ch&&sec@ke99!"));
     }
 
     @Test
     public void testPasswordDoesNotMeetComplexity() {
         // Missing special char or too short
         assertFalse(registration.checkPasswordComplexity("password"));
-        assertFalse(registration.checkPasswordComplexity("Pass1"));
+        assertFalse(registration.checkPasswordComplexity("password"));
     }
 
     @Test
     public void testPhoneCorrectlyFormatted() {
         // Starts +27, length 12 or 13
-        assertTrue(registration.checkPhone("+27123456789"));
+        assertTrue(registration.checkPhone("+27838968976"));
     }
 
     @Test
     public void testPhoneIncorrectlyFormatted() {
         // Wrong prefix or wrong length
-        assertFalse(registration.checkPhone("0123456789"));
+        assertFalse(registration.checkPhone("08966553"));
         assertFalse(registration.checkPhone("+27123"));
     }
 
     @Test
     public void testLoginSuccessful() {
-        user testUser = new user("J_Vis", "P@ssword1", "+27123456789");
+        user testUser = new user("kyl_1", "Ch&&sec@ke99!", "+27838968976");
         
-        String loginUser = "J_Vis";
-        String loginPass = "P@ssword1";
+        String loginUser = "kyl_1";
+        String loginPass = "Ch&&sec@ke99!";
         
         assertTrue(loginUser.equals(testUser.getUsername()) && loginPass.equals(testUser.getPassword()));
     }
 
     @Test
     public void testLoginFailed() {
-        user testUser = new user("J_Vis", "P@ssword1", "+27123456789");
+        user testUser = new user("kyle!!!!!!!", "password", "08966553");
         
         String loginUser = "WrongUser";
         String loginPass = "WrongPass";

@@ -29,6 +29,6 @@ public class registrationTest {
         assertEquals(true, registration.checkPhone("+27838968976"));
         
         
-        assertEquals(false, registration.checkPhone("0721234567"));
+        assertEquals(false, registration.checkPhone("08966553"));
     }
 }

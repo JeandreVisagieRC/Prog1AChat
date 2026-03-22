@@ -1,4 +1,4 @@
-package jeandrevisagie.chat;
+package jeandrevisagie.chat; //I've set these unit tests up as they're described in the project outline, but I think there are some redundancies
 
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;

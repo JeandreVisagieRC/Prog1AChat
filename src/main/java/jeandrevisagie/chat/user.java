@@ -6,7 +6,7 @@ package jeandrevisagie.chat;
  *
  * @author jeand
  */
-public class user {
+public class user { //declaring user variables
     private String username;
     private String password;
     private String phoneNumber;

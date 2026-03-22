@@ -6,24 +6,24 @@ public class registration {
 
     public static void main(String[] args) {
         Scanner input = new Scanner(System.in);
-        boolean isUserValid = false;
+        boolean isUserValid = false; //declare all false first, flip to true as conditions are fulfilled
         boolean isPassValid = false;
         boolean isPhoneValid = false;
         
-        System.out.print("Enter Username: ");
+        System.out.print("Enter Username: "); //intake username
         String username = input.nextLine();
         
-        isUserValid = checkUserName(username);
+        isUserValid = checkUserName(username); //call checkUserName method to check validity
         if (isUserValid) {
             System.out.println("Username successfully captured");
         } else {
             System.out.println("Username is not correctly formatted; please ensure that your username contains an underscore and is no more than five characters in length");
         }
 
-        System.out.print("Enter Password: ");
+        System.out.print("Enter Password: ");//capture password
         String password = input.nextLine();
         
-        isPassValid = checkPasswordComplexity(password);
+        isPassValid = checkPasswordComplexity(password); //call password check method
 
         if (isPassValid) {
             System.out.println("Password successfully captured");
@@ -31,18 +31,18 @@ public class registration {
             System.out.println("Password is not correctly formatted.");
         }
 
-        System.out.print("Enter Phone Number: ");
+        System.out.print("Enter Phone Number: "); //capture phone number
         String phone = input.nextLine();
         
-        isPhoneValid = checkPhone(phone);
+        isPhoneValid = checkPhone(phone); //call phone number check method
         if (isPhoneValid) {
             System.out.println("Phone number successfully added");
         } else {
             System.out.println("Phone number is incorrectly formatted or does not contain international code");
         }
 
-        if (isUserValid && isPassValid && isPhoneValid) {
-            user newUser = new user(username, password, phone);
+        if (isUserValid && isPassValid && isPhoneValid) { //if all requirements are fulfilled, registration successful
+            user newUser = new user(username, password, phone); //create user object
             System.out.println("Registration successful!");
             System.out.println("User object created for: " + newUser.getUsername());
     
@@ -53,7 +53,7 @@ public class registration {
             System.out.print("Enter Password: ");
             String loginPassword = input.nextLine();
             
-            if (loginUsername.equals(newUser.getUsername()) && loginPassword.equals(newUser.getPassword())) {
+            if (loginUsername.equals(newUser.getUsername()) && loginPassword.equals(newUser.getPassword())) { //validate user entry against user object for login
                 System.out.println("Welcome back, " + newUser.getUsername() + "! Login Successful.");
             } else {
                 System.out.println("Invalid username or password. Please try again.");
@@ -66,11 +66,11 @@ public class registration {
         }
     }
 
-    public static boolean checkUserName(String name) {
+    public static boolean checkUserName(String name) { //username checker
         return name.contains("_") && name.length() <= 5;
     }
 
-    public static boolean checkPasswordComplexity(String pd) {
+    public static boolean checkPasswordComplexity(String pd) { //password checker
         if (pd == null || pd.length() < 8) {
             return false; 
         }
@@ -92,7 +92,7 @@ public class registration {
         return hasUpper && hasDigit && hasSpecial; 
     }
 
-    public static boolean checkPhone(String phone) {
-        return phone.startsWith("+27") && (phone.length() == 13 || phone.length() == 12);
+    public static boolean checkPhone(String phone) { //phone no. checker
+        return phone.startsWith("+27") && (phone.length() == 13 || phone.length() == 12); // this should cover edge case of user including the 0 when entering phone number
     }
 }

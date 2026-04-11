@@ -11,10 +11,15 @@
             <artifactId>junit-jupiter-api</artifactId>
             <version>5.10.0</version>
         </dependency>
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>20240303</version>
+        </dependency>
     </dependencies>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.release>25</maven.compiler.release>
-        <exec.mainClass>jeandrevisagie.chat.Chat</exec.mainClass>
+        <exec.mainClass>jeandrevisagie.chat.QuickChat</exec.mainClass>
     </properties>
 </project>

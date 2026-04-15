@@ -34,11 +34,7 @@ public class Message {
         this.isSent = false;
     }
     
-    /**
-     * Checks that the message ID is no more than 10 characters
-     * 
-     * @return true if valid, false otherwise
-     */
+   
     public boolean checkMessageID() {
         if (messageID == null) {
             return false;
@@ -46,12 +42,7 @@ public class Message {
         return messageID.length() <= MAX_MESSAGE_ID_LENGTH;
     }
     
-    /**
-     * Validates that the recipient's phone number is no more than 10 characters
-     * long and begins with '+27'
-     * 
-     * @return A string message indicating validation result
-     */
+    
     public String checkRecipientCell() {
         if (recipientCell == null) {
             return "Error: Field cannot be blank.";
@@ -70,13 +61,7 @@ public class Message {
         return "Valid: Phone number " + recipientCell + " is valid.";
     }
     
-    /**
-     * Creates and returns the message hash in the format:
-     * [First 2 chars of ID]:[Message Number]:[First Word]-[Last Word]
-     * All in uppercase
-     * 
-     * @return A formatted message hash
-     */
+    
     public String createMessageHash() {
         if (messageID == null || messageID.length() < 2 || messageContent == null) {
             return "Error: Invalid message ID or content.";
@@ -102,13 +87,8 @@ public class Message {
         return this.messageHash;
     }
     
-    /**
-     * Allows the user to choose to send, store, or disregard the message
-     * 
-     * @return A string indicating the action taken
-     */
-    public String sentMessage() {
-        Scanner scanner = new Scanner(System.in);
+    
+    public String sentMessage(Scanner scanner) {
         String choice;
         
         System.out.println("\n--- Message Action Menu ---");

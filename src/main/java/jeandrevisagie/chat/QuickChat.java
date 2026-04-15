@@ -84,7 +84,7 @@ public class QuickChat {
         }
         
         System.out.println("Hash: " + msg.createMessageHash());
-        System.out.println(msg.sentMessage());
+        System.out.println(msg.sentMessage(input));
     }
     
     private static boolean checkUserName(String name) {

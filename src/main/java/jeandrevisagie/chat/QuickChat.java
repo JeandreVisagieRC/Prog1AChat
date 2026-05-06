@@ -3,106 +3,146 @@ package jeandrevisagie.chat;
 import java.util.Scanner;
 
 public class QuickChat {
-    private static Scanner input = new Scanner(System.in);
-    private static user currentUser = null;
-    
+
+    private static final Scanner input = new Scanner(System.in);
+
     public static void main(String[] args) {
-        System.out.println("=== Chat Application ===\n");
-        while (true) {
-            if (currentUser == null) showAuthMenu();
-            else showMainMenu();
-        }
-    }
-    
-    private static void showAuthMenu() {
-        System.out.println("\n1. Register | 2. Exit");
-        System.out.print("Choice: ");
-        if ("1".equals(input.nextLine().trim())) {
-            registerUser();
-        } else {
-            System.out.println("Goodbye!");
-            System.exit(0);
-        }
-    }
-    
-    private static void registerUser() {
-        System.out.print("Username (with '_', max 5 chars): ");
-        String user = input.nextLine();
-        if (!checkUserName(user)) {
-            System.out.println("Invalid username.");
+        System.out.println("Welcome to QuickChat.");
+
+        user currentUser = registerAndLogin();
+        if (currentUser == null) {
+            System.out.println("Login failed. Goodbye.");
             return;
         }
-        
-        System.out.print("Password (8+ chars, uppercase, digit, special): ");
-        String pass = input.nextLine();
-        if (!checkPasswordComplexity(pass)) {
-            System.out.println("Invalid password.");
+
+        System.out.print("\nHow many messages would you like to send? ");
+        int limit;
+        try {
+            limit = Integer.parseInt(input.nextLine().trim());
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid number. Goodbye.");
             return;
         }
-        
-        System.out.print("Phone (+27XXXXXXXXXX): ");
+
+        int sent = 0;
+        boolean running = true;
+
+        while (running && sent < limit) {
+            System.out.println("\n1. Send Messages");
+            System.out.println("2. Show recently sent messages");
+            System.out.println("3. Quit");
+            System.out.print("Choice: ");
+
+            switch (input.nextLine().trim()) {
+                case "1":
+                    if (sendMessage()) sent++;
+                    break;
+                case "2":
+                    System.out.println("Coming Soon.");
+                    break;
+                case "3":
+                    running = false;
+                    break;
+                default:
+                    System.out.println("Invalid option.");
+            }
+        }
+
+        System.out.println("\nTotal messages sent: " + Message.returnTotalMessages());
+    }
+
+    private static user registerAndLogin() {
+        System.out.println("\n--- Registration ---");
+        System.out.print("Username (contains '_', max 5 chars): ");
+        String username = input.nextLine();
+        if (!registration.checkUserName(username)) {
+            System.out.println("Username is not correctly formatted; please ensure that your username contains an underscore and is no more than five characters in length.");
+            return null;
+        }
+
+        System.out.print("Password (8+ chars, uppercase, digit, special char): ");
+        String password = input.nextLine();
+        if (!registration.checkPasswordComplexity(password)) {
+            System.out.println("Password is not correctly formatted.");
+            return null;
+        }
+
+        System.out.print("Phone number (+27XXXXXXXXX): ");
         String phone = input.nextLine();
-        if (!checkPhone(phone)) {
-            System.out.println("Invalid phone.");
-            return;
+        if (!registration.checkPhone(phone)) {
+            System.out.println("Phone number is incorrectly formatted or does not contain international code.");
+            return null;
         }
-        
-        currentUser = new user(user, pass, phone);
-        System.out.println("Welcome, " + currentUser.getUsername() + "!");
-    }
-    
-    private static void showMainMenu() {
-        System.out.println("\n1. Create Message | 2. View Messages | 3. JSON Export | 4. Logout");
-        System.out.print("Choice: ");
-        switch(input.nextLine().trim()) {
-            case "1": createMessage(); break;
-            case "2": System.out.println(new Message("t", "t", "t").printMessages()); break;
-            case "3": System.out.println(new Message("t", "t", "t").storeMessagesInJSON()); break;
-            case "4": currentUser = null; System.out.println("Logged out."); break;
+
+        user registered = new user(username, password, phone);
+        System.out.println("Registration successful!");
+
+        System.out.println("\n--- Login ---");
+        System.out.print("Username: ");
+        String loginUser = input.nextLine();
+        System.out.print("Password: ");
+        String loginPass = input.nextLine();
+
+        if (loginUser.equals(registered.getUsername()) && loginPass.equals(registered.getPassword())) {
+            System.out.println("Welcome, " + registered.getUsername() + "! Login successful.");
+            return registered;
         }
+
+        System.out.println("Invalid username or password.");
+        return null;
     }
-    
-    private static void createMessage() {
-        System.out.print("Message ID: ");
-        String id = input.nextLine();
-        System.out.print("Recipient Phone: ");
-        String phone = input.nextLine();
-        System.out.print("Content: ");
+
+    private static boolean sendMessage() {
+        System.out.print("\nRecipient cell number: ");
+        String recipient = input.nextLine();
+
+        System.out.print("Message: ");
         String content = input.nextLine();
-        
-        Message msg = new Message(id, phone, content);
-        
-        if (!msg.checkMessageID()) {
-            System.out.println("Invalid message ID.");
-            return;
+
+        String lengthCheck = Message.checkMessageLength(content);
+        if (!lengthCheck.equals("Message ready to send.")) {
+            System.out.println(lengthCheck);
+            return false;
         }
-        
-        String validation = msg.checkRecipientCell();
-        if (validation.startsWith("Error")) {
-            System.out.println(validation);
-            return;
+
+        Message msg = new Message(recipient, content);
+
+        String recipientCheck = msg.checkRecipientCell();
+        if (!recipientCheck.equals("Cell phone number successfully captured.")) {
+            System.out.println(recipientCheck);
+            return false;
         }
-        
-        System.out.println("Hash: " + msg.createMessageHash());
-        System.out.println(msg.sentMessage());
-    }
-    
-    private static boolean checkUserName(String name) {
-        return name.contains("_") && name.length() <= 5;
-    }
-    
-    private static boolean checkPasswordComplexity(String pd) {
-        if (pd == null || pd.length() < 8) return false;
-        boolean hasUpper = false, hasDigit = false, hasSpecial = false;
-        for (char c : pd.toCharArray()) {
-            if (Character.isUpperCase(c)) hasUpper = true;
-            if (Character.isDigit(c)) hasDigit = true;
-            if ("!@#$%^&*".indexOf(c) >= 0) hasSpecial = true;
+
+        String hash = msg.createMessageHash();
+        System.out.println("Message Hash: " + hash);
+
+        System.out.println("\n1. Send Message");
+        System.out.println("2. Store Message");
+        System.out.println("3. Disregard Message");
+        System.out.print("Choice: ");
+        String choice = input.nextLine().trim();
+
+        String action;
+        switch (choice) {
+            case "1": action = "Send Message";      break;
+            case "2": action = "Store Message";     break;
+            case "3": action = "Disregard Message"; break;
+            default:
+                System.out.println("Invalid option.");
+                return false;
         }
-        return hasUpper && hasDigit && hasSpecial;
-    }
-    
-    private static boolean checkPhone(String phone) {
-        return phone.startsWith("+27") && (phone.length() == 13 || phone.length() == 12);
+
+        String result = msg.sentMessage(action);
+        System.out.println(result);
+
+        if ("Send Message".equals(action)) {
+            System.out.println("\nMessage ID: "   + msg.getMessageID());
+            System.out.println("Message Hash: "  + msg.getMessageHash());
+            System.out.println("Recipient: "     + msg.getRecipientCell());
+            System.out.println("Message: "       + msg.getMessageContent());
+            return true;
+        }
+
+        return false;
     }
 }

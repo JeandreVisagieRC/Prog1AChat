@@ -1,254 +1,210 @@
 package jeandrevisagie.chat;
 
-import java.time.LocalDateTime;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.Scanner;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-
 public class Message {
-    
-    // variable declaration
+
     private String messageID;
+    private int numMessagesSent;
     private String recipientCell;
     private String messageContent;
     private String messageHash;
-    private LocalDateTime timestamp;
     private boolean isSent;
-    
-    // static variables to track messages 
+
     private static List<Message> messageHistory = new ArrayList<>();
     private static int totalMessagesSent = 0;
-    private static final int MAX_MESSAGE_ID_LENGTH = 10;
-    private static final int MAX_PHONE_LENGTH = 10;
-    private static final String PHONE_PREFIX = "+27";
-    
-   
-    public Message(String messageID, String recipientCell, String messageContent) {
-        this.messageID = messageID;
+    private static int messageCounter = 0;
+
+    private static final int MAX_MESSAGE_LENGTH = 250;
+
+    // Production constructor – messageID is auto-generated
+    public Message(String recipientCell, String messageContent) {
+        this.messageID = generateMessageID();
+        this.numMessagesSent = messageCounter++;
         this.recipientCell = recipientCell;
         this.messageContent = messageContent;
-        this.timestamp = LocalDateTime.now();
         this.isSent = false;
     }
-    
-    /**
-     * Checks that the message ID is no more than 10 characters
-     * 
-     * @return true if valid, false otherwise
-     */
+
+    // Testing constructor – messageID is provided so hashes are deterministic
+    public Message(String messageID, String recipientCell, String messageContent) {
+        this.messageID = messageID;
+        this.numMessagesSent = messageCounter++;
+        this.recipientCell = recipientCell;
+        this.messageContent = messageContent;
+        this.isSent = false;
+    }
+
+    private String generateMessageID() {
+        Random random = new Random();
+        StringBuilder id = new StringBuilder();
+        for (int i = 0; i < 10; i++) {
+            id.append(random.nextInt(10));
+        }
+        return id.toString();
+    }
+
+    /** Returns true if messageID is not more than 10 characters. */
     public boolean checkMessageID() {
-        if (messageID == null) {
-            return false;
-        }
-        return messageID.length() <= MAX_MESSAGE_ID_LENGTH;
+        return messageID != null && messageID.length() <= 10;
     }
-    
-    /**
-     * Validates that the recipient's phone number is no more than 10 characters
-     * long and begins with '+27'
-     * 
-     * @return A string message indicating validation result
-     */
+
+    /** Returns a formatted string confirming the generated message ID. */
+    public String displayMessageID() {
+        return "Message ID generated: " + messageID;
+    }
+
+    /** Validates the recipient cell number – must start with an international code ('+').  */
     public String checkRecipientCell() {
-        if (recipientCell == null) {
-            return "Error: Field cannot be blank.";
+        if (recipientCell == null || recipientCell.isEmpty() || !recipientCell.startsWith("+")) {
+            return "Cell phone number is incorrectly formatted or does not contain an International code. Please correct the number and try again.";
         }
-        
-        if (!recipientCell.startsWith(PHONE_PREFIX)) {
-            return "Error: Phone number must start with '+27'.";
-        }
-        
-        // Remove the '+27' prefix to check the remaining length
-        String phoneWithoutPrefix = recipientCell.substring(3);
-        if (phoneWithoutPrefix.length() > MAX_PHONE_LENGTH - 3) {
-            return "Error: Phone number is too long. Maximum length is " + MAX_PHONE_LENGTH + " characters.";
-        }
-        
-        return "Valid: Phone number " + recipientCell + " is valid.";
+        return "Cell phone number successfully captured.";
     }
-    
+
+    /** Validates message length. Returns a human-readable result string. */
+    public static String checkMessageLength(String message) {
+        if (message == null || message.length() <= MAX_MESSAGE_LENGTH) {
+            return "Message ready to send.";
+        }
+        int excess = message.length() - MAX_MESSAGE_LENGTH;
+        return "Message exceeds 250 characters by " + excess + "; please reduce the size.";
+    }
+
     /**
-     * Creates and returns the message hash in the format:
-     * [First 2 chars of ID]:[Message Number]:[First Word]-[Last Word]
-     * All in uppercase
-     * 
-     * @return A formatted message hash
+     * Generates the message hash in the format:
+     *   <first 2 chars of messageID>:<message number>:<FIRSTWORDLASTWORD>
+     * All alpha characters forced to uppercase; punctuation stripped.
      */
     public String createMessageHash() {
-        if (messageID == null || messageID.length() < 2 || messageContent == null) {
-            return "Error: Invalid message ID or content.";
+        if (messageID == null || messageID.length() < 2 || messageContent == null || messageContent.trim().isEmpty()) {
+            return "Error: Invalid message data.";
         }
-        
-        // Get first two characters of message ID
-        String idPrefix = messageID.substring(0, Math.min(2, messageID.length())).toUpperCase();
-        
-        // Get message number (position in history + 1, since not added yet)
-        int messageNumber = messageHistory.size() + 1;
-        
-        // Get first and last words
+
+        String idPrefix = messageID.substring(0, 2);
         String[] words = messageContent.trim().split("\\s+");
-        if (words.length == 0) {
-            return "Error: Message content is empty.";
-        }
-        
-        String firstWord = words[0].toUpperCase();
-        String lastWord = words[words.length - 1].toUpperCase();
-        
-        // Build the hash
-        this.messageHash = idPrefix + ":" + messageNumber + ":" + firstWord + "-" + lastWord;
+        String firstWord = words[0].toUpperCase().replaceAll("[^A-Z]", "");
+        String lastWord = words[words.length - 1].toUpperCase().replaceAll("[^A-Z]", "");
+
+        this.messageHash = idPrefix + ":" + numMessagesSent + ":" + firstWord + lastWord;
         return this.messageHash;
     }
-    
+
     /**
-     * Allows the user to choose to send, store, or disregard the message
-     * 
-     * @return A string indicating the action taken
+     * Processes the chosen action for a message.
+     * Accepts: "Send Message", "Disregard Message", "Store Message".
      */
-    public String sentMessage() {
-        Scanner scanner = new Scanner(System.in);
-        String choice;
-        
-        System.out.println("\n--- Message Action Menu ---");
-        System.out.println("1. Send message");
-        System.out.println("2. Store message");
-        System.out.println("3. Disregard message");
-        System.out.print("Enter your choice (1-3): ");
-        
-        choice = scanner.nextLine().trim();
-        
-        switch(choice) {
-            case "1":
+    public String sentMessage(String action) {
+        switch (action) {
+            case "Send Message":
                 this.isSent = true;
                 totalMessagesSent++;
                 messageHistory.add(this);
-                return "Message sent successfully!";
-                
-            case "2":
+                return "Message successfully sent.";
+            case "Disregard Message":
+                return "Press 0 to delete the message.";
+            case "Store Message":
                 messageHistory.add(this);
-                return "Message stored successfully!";
-                
-            case "3":
-                return "Message disregarded.";
-                
+                return "Message successfully stored.";
             default:
-                return "Invalid choice. Please enter 1, 2, or 3.";
+                return "Invalid choice.";
         }
     }
-    
+
+    /** Interactive version – prompts the user and delegates to sentMessage(String). */
+    public String sentMessage() {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("\n1. Send Message");
+        System.out.println("2. Store Message");
+        System.out.println("3. Disregard Message");
+        System.out.print("Choice: ");
+        String choice = scanner.nextLine().trim();
+        switch (choice) {
+            case "1": return sentMessage("Send Message");
+            case "2": return sentMessage("Store Message");
+            case "3": return sentMessage("Disregard Message");
+            default:  return "Invalid choice.";
+        }
+    }
+
     /**
-     * Returns all the messages sent/stored while the program is running
-     * 
-     * @return A string representation of all messages
+     * Returns a formatted string of all messages in the session.
+     * Order per spec: Message ID → Message Hash → Recipient → Message.
      */
     public String printMessages() {
         if (messageHistory.isEmpty()) {
             return "No messages in history.";
         }
-        
-        StringBuilder result = new StringBuilder();
-        result.append("\n--- Message History ---\n");
-        
-        for (int i = 0; i < messageHistory.size(); i++) {
-            Message msg = messageHistory.get(i);
-            result.append(String.format("Message %d:\n", i + 1));
-            result.append(String.format("  ID: %s\n", msg.messageID));
-            result.append(String.format("  Recipient: %s\n", msg.recipientCell));
-            result.append(String.format("  Content: %s\n", msg.messageContent));
-            result.append(String.format("  Hash: %s\n", msg.messageHash));
-            result.append(String.format("  Timestamp: %s\n", msg.timestamp));
-            result.append(String.format("  Sent: %s\n", msg.isSent ? "Yes" : "No"));
-            result.append("\n");
+        StringBuilder sb = new StringBuilder("\n--- Message History ---\n");
+        for (Message msg : messageHistory) {
+            sb.append("Message ID: ").append(msg.messageID).append("\n");
+            sb.append("Message Hash: ").append(msg.messageHash).append("\n");
+            sb.append("Recipient: ").append(msg.recipientCell).append("\n");
+            sb.append("Message: ").append(msg.messageContent).append("\n\n");
         }
-        
-        return result.toString();
+        return sb.toString();
     }
-    
-    /**
-     * Returns the total number of messages sent
-     * 
-     * @return The total count of sent messages
-     */
+
+    /** Returns the total number of messages sent (not stored or disregarded). */
     public static int returnTotalMessages() {
         return totalMessagesSent;
     }
-    
-    /**
-     * Stores all messages in JSON format and returns as a string
-     * 
-     * @return A JSON string representation of all messages
-     */
-    public String storeMessagesInJSON() {
-        JSONArray jsonArray = new JSONArray();
-        
-        for (Message msg : messageHistory) {
-            JSONObject jsonObj = new JSONObject();
-            jsonObj.put("messageID", msg.messageID);
-            jsonObj.put("recipientCell", msg.recipientCell);
-            jsonObj.put("messageContent", msg.messageContent);
-            jsonObj.put("messageHash", msg.messageHash);
-            jsonObj.put("timestamp", msg.timestamp.toString());
-            jsonObj.put("isSent", msg.isSent);
-            
-            jsonArray.put(jsonObj);
+
+    /** Appends this message to messages.json. */
+    public void storeMessage() {
+        JSONObject json = new JSONObject();
+        json.put("messageID", messageID);
+        json.put("messageHash", messageHash != null ? messageHash : "");
+        json.put("recipient", recipientCell);
+        json.put("message", messageContent);
+
+        try (FileWriter fw = new FileWriter("messages.json", true)) {
+            fw.write(json.toString(2));
+            fw.write("\n");
+        } catch (IOException e) {
+            System.err.println("Error storing message: " + e.getMessage());
         }
-        
+    }
+
+    /** Returns JSON string of all messages (for display/export). */
+    public String storeMessagesInJSON() {
+        JSONArray array = new JSONArray();
+        for (Message msg : messageHistory) {
+            JSONObject obj = new JSONObject();
+            obj.put("messageID", msg.messageID);
+            obj.put("messageHash", msg.messageHash != null ? msg.messageHash : "");
+            obj.put("recipient", msg.recipientCell);
+            obj.put("message", msg.messageContent);
+            obj.put("sent", msg.isSent);
+            array.put(obj);
+        }
         JSONObject root = new JSONObject();
         root.put("totalMessagesSent", totalMessagesSent);
-        root.put("messages", jsonArray);
-        
-        return root.toString(2); // Pretty print with 2-space indentation
+        root.put("messages", array);
+        return root.toString(2);
     }
-    
-    // Getters and Setters
-    public String getMessageID() {
-        return messageID;
-    }
-    
-    public void setMessageID(String messageID) {
-        this.messageID = messageID;
-    }
-    
-    public String getRecipientCell() {
-        return recipientCell;
-    }
-    
-    public void setRecipientCell(String recipientCell) {
-        this.recipientCell = recipientCell;
-    }
-    
-    public String getMessageContent() {
-        return messageContent;
-    }
-    
-    public void setMessageContent(String messageContent) {
-        this.messageContent = messageContent;
-    }
-    
-    public String getMessageHash() {
-        return messageHash;
-    }
-    
-    public LocalDateTime getTimestamp() {
-        return timestamp;
-    }
-    
-    public boolean isSent() {
-        return isSent;
-    }
-    
-    public void setSent(boolean sent) {
-        isSent = sent;
-    }
-    
-    public static List<Message> getMessageHistory() {
-        return messageHistory;
-    }
-    
-    public static void clearMessageHistory() {
+
+    /** Resets all static state – used between tests. */
+    public static void clearHistory() {
         messageHistory.clear();
         totalMessagesSent = 0;
+        messageCounter = 0;
     }
+
+    // Getters
+    public String getMessageID()      { return messageID; }
+    public String getRecipientCell()  { return recipientCell; }
+    public String getMessageContent() { return messageContent; }
+    public String getMessageHash()    { return messageHash; }
+    public int    getNumMessagesSent(){ return numMessagesSent; }
+    public boolean isSent()           { return isSent; }
+
+    public static List<Message> getMessageHistory() { return messageHistory; }
 }

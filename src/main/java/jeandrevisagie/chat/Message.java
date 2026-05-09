@@ -1,8 +1,22 @@
 package jeandrevisagie.chat;
 
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Reader;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.Scanner;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+
 
 public class Message {//creates and stores messages, generates message ID and hash, and tracks the number of messages sent
 
@@ -29,13 +43,18 @@ public class Message {//creates and stores messages, generates message ID and ha
         long id = (long)(random.nextDouble() * 9000000000L) + 1000000000L;
         return String.valueOf(id);
     }
+// Getters for message properties
+    public String getMessageID()            
+    { return messageID; }
+    public String getMessageHash()          
+    { return messageHash; }
+    public String getRecipient()            
+    { return recipient; }
+    public String getMessage()              
+    { return message; }
+    public static int getNumMessagesSent()  
+    { return numMessagesSent; }
 
-    public String getMessageID()            { return messageID; }
-    public String getMessageHash()          { return messageHash; }
-    public String getRecipient()            { return recipient; }
-    public String getMessage()              { return message; }
-    public static int getNumMessagesSent()  { return numMessagesSent; }
-}
 public boolean checkMessageID() {//checks that the message ID is no more than 10 characters in length
     return messageID.length() <= 10;
 }
@@ -108,6 +127,37 @@ public static String printMessages() {//prints all sent messages with their deta
 public static int returnTotalMessages() {
     return totalSent;
 }
-public void storeMessage() {//stores the message for later sending
-    storedMessages.add(this);
-}
+public void storeMessage() {//stores the message in a JSON file
+    String filePath = "storedMessages.json";
+    Gson gson = new GsonBuilder().setPrettyPrinting().create();
+    JsonArray jsonArray = new JsonArray();
+
+    // If file already exists, load what's already in it
+    File file = new File(filePath);
+    if (file.exists()) {
+        try (Reader reader = new FileReader(file)) {
+            JsonElement element = JsonParser.parseReader(reader);
+            if (element.isJsonArray()) {
+                jsonArray = element.getAsJsonArray();
+            }
+        } catch (IOException e) {
+            System.out.println("Could not read existing stored messages.");
+        }
+    }
+
+    // builds out a JSON object for the current message
+    JsonObject jsonMessage = new JsonObject();
+    jsonMessage.addProperty("messageID", messageID);
+    jsonMessage.addProperty("messageHash", messageHash);
+    jsonMessage.addProperty("recipient", recipient);
+    jsonMessage.addProperty("message", message);
+
+    // writes object to file
+    jsonArray.add(jsonMessage);
+    try (Writer writer = new FileWriter(filePath)) {
+        gson.toJson(jsonArray, writer);
+        System.out.println("Message saved to " + filePath);
+    } catch (IOException e) {
+        System.out.println("Could not save message to file.");
+    }
+}}

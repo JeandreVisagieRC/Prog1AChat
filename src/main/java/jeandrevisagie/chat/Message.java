@@ -167,4 +167,71 @@ public void storeMessage() {//stores the message in a JSON file
         System.out.println("Could not save message to file.");
     }
 storedMessages.add(this);
-}}
+}
+public static String displayStoredMessages() {//displays stored messages with their details. if no messages are stored, it indicates that as well
+    if (storedMessages.isEmpty()) return "No stored messages.";
+    StringBuilder sb = new StringBuilder("\n--- Stored Messages ---\n");
+    for (Message m : storedMessages) {
+        sb.append("Recipient: ").append(m.recipient).append("\n");
+        sb.append("Message:   ").append(m.message).append("\n");
+        sb.append("-----------------------\n");
+    }
+    return sb.toString();
+}
+
+public static String getLongestMessage() {//retrieves the longest message found
+    ArrayList<Message> all = new ArrayList<>();
+    all.addAll(sentMessages);
+    all.addAll(storedMessages);
+    if (all.isEmpty()) return "No messages found.";
+    Message longest = all.get(0);
+    for (Message m : all) {
+        if (m.message.length() > longest.message.length()) longest = m;
+    }
+    return longest.message;
+}
+
+public static String searchByMessageID(String id) {//searches by ID
+    ArrayList<Message> all = new ArrayList<>();
+    all.addAll(sentMessages);
+    all.addAll(storedMessages);
+    for (Message m : all) {
+        if (m.messageID.equals(id))
+            return "Recipient: " + m.recipient + "\nMessage: " + m.message;
+    }
+    return "Message ID not found.";
+}
+
+public static String searchByRecipient(String recipient) {//searches by recipient
+    StringBuilder sb = new StringBuilder();
+    ArrayList<Message> all = new ArrayList<>();
+    all.addAll(sentMessages);
+    all.addAll(storedMessages);
+    for (Message m : all) {
+        if (m.recipient.equals(recipient)) sb.append(m.message).append("\n");
+    }
+    return sb.length() == 0 ? "No messages found for that recipient." : sb.toString();
+}
+
+public static String deleteByHash(String hash) {//deletes a stored message by its hash
+    for (Message m : storedMessages) {
+        if (m.messageHash.equals(hash.toUpperCase())) {
+            storedMessages.remove(m);
+            return "Message: \"" + m.message + "\" successfully deleted.";
+        }
+    }
+    return "Message hash not found.";
+}
+
+public static String displayReport() {//displays a report of all stored messages with their details. if no messages are stored, it indicates that as well
+    if (storedMessages.isEmpty()) return "No stored messages to report.";
+    StringBuilder sb = new StringBuilder("\n--- Stored Messages Report ---\n");
+    for (Message m : storedMessages) {
+        sb.append("Message Hash: ").append(m.messageHash).append("\n");
+        sb.append("Recipient:    ").append(m.recipient).append("\n");
+        sb.append("Message:      ").append(m.message).append("\n");
+        sb.append("------------------------------\n");
+    }
+    return sb.toString();
+}
+}

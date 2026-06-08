@@ -27,16 +27,21 @@ public class Message {//creates and stores messages, generates message ID and ha
 
     private static int numMessagesSent = 0;
     private static int totalSent = 0;
-    private static ArrayList<Message> sentMessages = new ArrayList<>();
-    private static ArrayList<Message> storedMessages = new ArrayList<>();
+    private static ArrayList<Message> sentMessages        = new ArrayList<>();
+    private static ArrayList<Message> storedMessages      = new ArrayList<>();
+    private static ArrayList<Message> disregardedMessages = new ArrayList<>();
+    private static ArrayList<String>  messageHashes       = new ArrayList<>();
+    private static ArrayList<String>  messageIDs          = new ArrayList<>();
 
-    public Message(String recipient, String message) {
-        this.recipient = recipient;
-        this.message = message;
-        this.messageID = generateMessageID();
-        numMessagesSent++;
-        this.messageHash = createMessageHash();
-    }
+    public Message(String recipient, String message) {//constructor to create a new message and generate its ID and hash
+    this.recipient = recipient;
+    this.message   = message;
+    this.messageID = generateMessageID();
+    numMessagesSent++;
+    this.messageHash = createMessageHash();
+    messageHashes.add(this.messageHash);
+    messageIDs.add(this.messageID);
+}
 
     private String generateMessageID() {
         Random random = new Random();
@@ -96,8 +101,9 @@ public String SentMessage() {//provides options for the user to send, disregard,
             totalSent++;
             sentMessages.add(this);
             return "Message successfully sent.";
-        case 2:
-            return "Press 0 to delete the message.";
+        case 2://tracks disregarded messages
+    disregardedMessages.add(this);
+    return "Press 0 to delete the message.";
         case 3:
             storeMessage();
             return "Message successfully stored.";
@@ -160,4 +166,5 @@ public void storeMessage() {//stores the message in a JSON file
     } catch (IOException e) {
         System.out.println("Could not save message to file.");
     }
+storedMessages.add(this);
 }}

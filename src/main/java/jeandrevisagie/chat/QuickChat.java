@@ -36,7 +36,8 @@ public class QuickChat {
         do {
             System.out.println("\n1) Send Messages");
             System.out.println("2) Show recently sent messages");
-            System.out.println("3) Quit");
+            System.out.println("3) Stored Messages");
+            System.out.println("4) Quit");
             System.out.print("Choose an option: ");
             choice = Integer.parseInt(scanner.nextLine().trim());
 
@@ -95,18 +96,53 @@ public class QuickChat {
                     System.out.println("Coming Soon.");
                     break;
 
-                case 3:
-                    System.out.println(Message.printMessages());
-                    System.out.println("Total messages sent: " +
-                        Message.returnTotalMessages());
-                    System.out.println("Goodbye!");
-                    break;
+                case 3:// provides a menu for stored messages with options to display, search, and delete messages, as well as view a report before returning to the main menu
+    int storedChoice;
+    do {
+        System.out.println("\n--- Stored Messages Menu ---");
+        System.out.println("1) Display all stored messages");
+        System.out.println("2) Display longest message");
+        System.out.println("3) Search by message ID");
+        System.out.println("4) Search by recipient");
+        System.out.println("5) Delete message by hash");
+        System.out.println("6) Display report");
+        System.out.println("7) Back");
+        System.out.print("Choose: ");
+        storedChoice = Integer.parseInt(scanner.nextLine().trim());
+
+        switch (storedChoice) {
+            case 1: System.out.println(Message.displayStoredMessages()); break;
+            case 2: System.out.println(Message.getLongestMessage()); break;
+            case 3:
+                System.out.print("Enter message ID: ");
+                System.out.println(Message.searchByMessageID(scanner.nextLine()));
+                break;
+            case 4:
+                System.out.print("Enter recipient number: ");
+                System.out.println(Message.searchByRecipient(scanner.nextLine()));
+                break;
+            case 5:
+                System.out.print("Enter message hash: ");
+                System.out.println(Message.deleteByHash(scanner.nextLine()));
+                break;
+            case 6: System.out.println(Message.displayReport()); break;
+            case 7: break;
+            default: System.out.println("Invalid option.");
+        }
+    } while (storedChoice != 7);
+    break;
+
+case 4://fulfils old case 3 functionality by printing all sent messages and the total count before exiting
+    System.out.println(Message.printMessages());
+    System.out.println("Total messages sent: " + Message.returnTotalMessages());
+    System.out.println("Goodbye!");
+    break;
 
                 default:
                     System.out.println("Invalid option. Please try again.");
             }
 
-        } while (choice != 3);
+        } while (choice != 4);
 
         scanner.close();
     }

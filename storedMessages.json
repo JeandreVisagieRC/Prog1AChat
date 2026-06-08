@@ -22,5 +22,29 @@
     "messageHash": "78:7:HITONIGHT",
     "recipient": "+27718693002",
     "message": "Hi Mike, can you join us for dinner tonight?"
+  },
+  {
+    "messageID": "6163600250",
+    "messageHash": "61:0:WHERETIME",
+    "recipient": "+27838884567",
+    "message": "Where are you? You are late! I have asked you to be on time."
+  },
+  {
+    "messageID": "6178867087",
+    "messageHash": "61:0:WHERETIME",
+    "recipient": "+27838884567",
+    "message": "Where are you? You are late! I have asked you to be on time."
+  },
+  {
+    "messageID": "5480162298",
+    "messageHash": "54:1:OKYOU",
+    "recipient": "+27838884567",
+    "message": "Ok, I am leaving without you."
+  },
+  {
+    "messageID": "9962261142",
+    "messageHash": "99:0:HITONIGHT",
+    "recipient": "+27718693002",
+    "message": "Hi Mike, can you join us for dinner tonight?"
   }
 ]

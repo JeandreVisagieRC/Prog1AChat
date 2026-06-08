@@ -42,7 +42,25 @@ public class Message {//creates and stores messages, generates message ID and ha
     messageHashes.add(this.messageHash);
     messageIDs.add(this.messageID);
 }
+public static void loadStoredMessages() {//loads stored messages from a JSON file into the storedMessages list when the application starts
+    String filePath = "storedMessages.json";
+    File file = new File(filePath);
+    if (!file.exists()) return;
 
+    try (Reader reader = new FileReader(file)) {
+        JsonArray jsonArray = JsonParser.parseReader(reader).getAsJsonArray();
+        for (JsonElement el : jsonArray) {
+            JsonObject obj = el.getAsJsonObject();
+            Message m = new Message(
+                obj.get("recipient").getAsString(),
+                obj.get("message").getAsString()
+            );
+            storedMessages.add(m);
+        }
+    } catch (IOException e) {
+        System.out.println("Could not load stored messages.");
+    }
+}
     private String generateMessageID() {
         Random random = new Random();
         long id = (long)(random.nextDouble() * 9000000000L) + 1000000000L;

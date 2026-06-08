@@ -5,6 +5,7 @@ import java.util.Scanner;
 public class QuickChat {
 
     public static void main(String[] args) {
+        Message.loadStoredMessages();
         Scanner scanner = new Scanner(System.in);
 
         // registration
@@ -93,8 +94,8 @@ public class QuickChat {
                     break;
 
                 case 2:
-                    System.out.println("Coming Soon.");
-                    break;
+    System.out.println(Message.printMessages());
+    break;
 
                 case 3:// provides a menu for stored messages with options to display, search, and delete messages, as well as view a report before returning to the main menu
     int storedChoice;
